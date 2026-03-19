@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos - NunesTrader</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><i class="fas fa-store"></i> Dumbanengue</h1>
+            </div>
+            
+            
+        </nav>
+    </header>
+
+    <main class="plans-container">
+        <div class="plans-header">
+            <h1><i class="fas fa-crown"></i> Planos para Vendedores</h1>
+            <p>Escolha o plano ideal para o seu negócio e comece a vender hoje mesmo!</p>
+        </div>
+
+        <div class="plans-grid">
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>Mensal</h3>
+                    <div class="plan-price">
+                        <span class="amount">50 MT</span>
+                        <span class="period">/mês</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <li><i class="fas fa-check"></i> Até 70 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Perfil básico</li>
+                        <li><i class="fas fa-times"></i> Sem suporte prioritário</li>
+                </div>
+                <button class="btn-secondary btn-block" disabled >Escolher Plano</button>
+            </div>
+
+            <div class="plan-card featured">
+                <div class="plan-badge">Mais Popular</div>
+                <div class="plan-header">
+                    <h3>Semestral</h3>
+                    <div class="plan-price">
+                        <span class="amount">250 MT</span>
+                        <span class="period">-6 meses</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <li><i class="fas fa-check"></i> Até 150 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Suporte por email</li>
+                        <li><i class="fas fa-check"></i> Estatísticas básicas</li>
+                </div>
+                <button class="btn-primary btn-block" >
+                    <i class="fas fa-shopping-cart"></i> Escolher Plano
+                </button>
+            </div>
+
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>Anual</h3>
+                    <div class="plan-price">
+                        <span class="amount">500 MT</span>
+                        <span class="period">-1 ano</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <li><i class="fas fa-check"></i> Até 300 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Suporte 24/7</li>
+                        <li><i class="fas fa-check"></i> Destaque nos resultados</li>
+                </div>
+                <button class="btn-primary btn-block" >
+                    <i class="fas fa-shopping-cart"></i> Escolher Plano
+                </button>
+            </div>
+        </div>
+            <div class="infoplanos">
+                <p class="mpesa-notice">
+                    <i class="fas fa-mobile-alt"></i> Pagamentos via M-Pesa paga facil- Código: 1021877
+                </p>
+                <p class="emola-notice">
+                    <i class="fas fa-mobile-alt"></i> Pagamentos via E-Mola: 868125856
+                </p>
+
+            </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-shopping-cart"></i> Confirmar Plano</h2>
+            
+            <div id="selectedPlanInfo">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+
+            <div class="mpesa-payment">
+                <h3><i class="fas fa-mobile-alt"></i> Instruções para Pagamento</h3>
+                <ol>
+                    <li>Abra o M-Pesa no seu telefone</li>
+                    <li>Selecione "Pagar Fácil"</li>
+                    <li>Digite o código: <strong>1021877</strong></li>
+                    <li>Digite o valor: <strong id="planAmount">0 MT</strong></li>
+                    <li>Confirme o pagamento</li>
+                </ol>
+                
+                <div class="form-group">
+                    <label for="paymentProof"><i class="fas fa-receipt"></i> Comprovante de Pagamento</label>
+                    <input type="file" id="paymentProof" accept="image/*">
+                    <p class="form-help">Envie uma foto ou screenshot do comprovante</p>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-block" onclick="completePayment()">
+                <i class="fas fa-check-circle"></i> Confirmar Pagamento
+            </button>
+        </div>
+    </div>
+    
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+   <div class="form-group">
+          <label class="file-input-label" for="foto"><i class="fas fa-image"></i> Comprovante</label>
+          <label class="file-input-wrapper">
+            <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+            <input id="foto" type="file" name="transacao" accept="image/*" required>
+          </label>
+          <div class="image-preview" id="paymentPreview"></div>
+        </div>
+        </div>
+     <button type="submit" class="btn-primary btn-block"><i class="fas fa-upload"></i> Enviar Comprovante</button>
+</form>
+<script>
+        const paymentInput = document.getElementById('foto');
+        const paymentPreview = document.getElementById('paymentPreview');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização do comprovante';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput) {
+            paymentInput.addEventListener('change', () => renderImagePreview(paymentInput, paymentPreview));
+        }
+
+        
+
+</script>
+
+    
+    
+</body>
+</html>

@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Anderson Sergio Cumba">
+    <meta name="description" content="site de compra e vendas">
+    <meta name="keywords" content="compra,venda,roupas,carros,casas,produtos,acessorios,servicos">
+    <title>Anderson Nunes</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <nav class="navbar">
+            <div class="logo"><br>
+                <h1><i class="fas fa-store"></i>___Dumbanengue</h1>
+            </div>
+            <div class="nav-links">
+    
+                <div class="user-menu" id="userMenu">
+                    <a href="{% url 'website:login' %}" class="btn-login"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+                    <a href="{% url 'website:cadastro' %}" class="btn-primary">cadastrar-se</a>
+                </div>
+                
+                
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Banner Principal -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Compre e venda com segurança em Moçambique</h2>
+            <p>Marketplace 100% verificado com sistema de fretes e pagamento via M-Pesa/E-Mola</p>
+            <div class="hero-buttons">
+                <a href="{% url 'website:cadastro' %}" class="btn-primary" title="Apenas administradores podem publicar produtos. Usuários comuns podem apenas visualizar e comprar.">Começar Agora</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <h3 id="totalUsersCount">1.200+</h3>
+                    <p>Usuários Ativos</p>
+                </div>
+                <div class="stat">
+                    <h3 id="totalProductsCount">850+</h3>
+                    <p>Produtos Listados</p>
+                </div>
+                <div class="stat">
+                    <h3 id="verifiedSellersCount">100%</h3>
+                    <p>Vendedores Verificados</p>
+                </div>
+                <div class="stat">
+                    <h3 id="completedOrdersCount">2.500+</h3>
+                    <p>Pedidos Concluídos</p>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Marketplace">
+        </div>
+    </section>
+
+    <!-- Categorias -->
+    <section class="categories">
+        <div class="container">
+            <h2>Navegue por Categorias</h2>
+            <div class="categories-grid">
+                <a href="#" class="category-card">
+                    <i class="fas fa-laptop"></i>
+                    <h3>Eletrônicos</h3>
+                    <p>Smartphones, laptops, acessórios</p>
+                    <span class="category-count" id="catEletronicos">1000+ produtos</span>
+                </a>
+                <a href="#" class="category-card">
+                    <i class="fas fa-tshirt"></i>
+                    <h3>Vestuário</h3>
+                    <p>Roupas, calçados, acessórios</p>
+                    <span class="category-count" id="catVestuario">1500+ produtos</span>
+                </a>
+                <a href="#" class="category-card">
+                    <i class="fas fa-home"></i>
+                    <h3>Casa & Jardim</h3>
+                    <p>Móveis, decoração, eletrodomésticos</p>
+                    <span class="category-count" id="catCasa">2000+ produtos</span>
+                </a>
+                <a href="#" class="category-card">
+                    <i class="fas fa-car"></i>
+                    <h3>Automóveis</h3>
+                    <p>Carros, motos, peças</p>
+                    <span class="category-count" id="catAutomoveis">100+ produtos</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos em Destaque -->
+    <section class="featured-products">
+        <div class="container">
+            <div class="section-header">
+                <h2>Produtos em Destaque</h2>
+                
+            </div>
+            <div class="products-grid" id="featuredProducts">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Carregando produtos em destaque...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos Mais Vendidos -->
+    <section class="best-sellers">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Mais Vendidos</h2>
+                
+            </div>
+            <div class="products-grid" id="bestSellers">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Carregando produtos mais vendidos...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Como Funciona -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>Como Funciona o Dumbanengue</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Crie sua Conta</h3>
+                    <p>Registe-se como comprador ou vendedor em menos de 2 minutos</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-id-card"></i>
+                    <h3>Verifique sua Identidade</h3>
+                    <p>Envie uma foto do seu documento e selfie para validar sua conta de vendedor</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-store"></i>
+                    <h3>Confirmacao</h3>
+                    <p>Receba uma mensagem de Confirmacao por e-mail</p>
+                    
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <i class="fas fa-truck"></i>
+                    <h3>Comece a vender</h3>
+                    <p>Escolha um dos planos pagos e comece a vender</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planos (Preview) -->
+    <section class="plans-preview">
+        <div class="container">
+            <h2 title="Somente administradores podem publicar produtos. Se você não for admin, poderá apenas comprar.">Planos para Vendedores</h2>
+            <p>Escolha o plano ideal para o seu negócio</p>
+                                <div class="plans-grid-preview">
+                <div class="plan-card-preview">
+                    <h3>Mensal</h3>
+                    <div class="price">50 MT<span>/mês</span></div>
+<ul>
+                        <li><i class="fas fa-check"></i> Até 70 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Perfil básico</li>
+                        <li><i class="fas fa-times"></i> Sem suporte prioritário</li>
+                    </ul>
+                    
+                </div>
+                <div class="plan-card-preview featured">
+                    <div class="badge">Mais Popular</div>
+                    <h3>Semestral</h3>
+                    <div class="price">250 MT<span>-6 meses</span></div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Até 150 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Suporte por email</li>
+                        <li><i class="fas fa-check"></i> Estatísticas básicas</li>
+                    </ul>
+                    
+                </div>
+                <div class="plan-card-preview">
+                    <h3>Anual</h3>
+                    <div class="price">500 MT<span>-1 ano</span></div>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Até 300 produtos/mês</li>
+                        <li><i class="fas fa-check"></i> Suporte 24/7</li>
+                        <li><i class="fas fa-check"></i> Destaque nos resultados</li>
+                    </ul>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testemunhos -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>O que dizem nossos usuários</h2>
+            <div class="testimonials-grid" id="userTestimonials">
+                <!-- Testemunhos serão carregados via JavaScript -->
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Finalmente um marketplace confiável em Moçambique! Como vendedor, posso focar nas vendas enquanto o Dumbanengue cuida da segurança."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Anderson">
+                        <div>
+                            <h4>Anderson Nunes</h4>
+                            <p>Vendedor · Maputo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="cta">
+        <div class="container">
+            <h2>Pronto para começar?</h2>
+            <p>Junte-se a milhares de moçambicanos que já compram e vendem com segurança</p>
+            <div class="cta-buttons">
+                <a href="{% url 'website:cadastro' %}" class="btn-primary btn-large">
+                    <i class="fas fa-user-plus"></i> Criar Conta Grátis
+                </a>
+                
+                    <i class="fas fa-shopping-bag"></i> 
+                </a>
+            </div>
+            <div class="cta-features">
+                <p><i class="fas fa-check"></i> Sem custos de inscrição</p>
+                <p><i class="fas fa-check"></i> Verificação de identidade gratuita</p>
+                <p><i class="fas fa-check"></i> Suporte 24/7</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-store"></i>Dumbanengue</h3>
+                <p>O marketplace mais confiável de Moçambique</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/258834197405" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Links Rápidos</h3>
+                
+               
+                
+                <a href="{% url 'website:login' %}">Minha Conta</a>
+                <a href="{% url 'website:cadastro' %}">Cadastrar</a>
+              
+               
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="{% url 'website:termos' %}">Termos&condicoes</a>
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Política de Reembolso</a>
+                <a href="#">FAQ</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p><i class="fas fa-envelope"></i>eyeseagle0625m@gmail.com</p>
+                <p><i class="fas fa-phone"></i> +258 841905479//868125856</p>
+                <p><i class="fas fa-map-marker-alt"></i> Maputo, Moçambique</p>
+                <p><i class="fas fa-clock"></i> Seg-Sex: 9h-17h</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Anderson Nunes. Todos os direitos reservados.</p>
+           
+        </div>
+    </footer>
+
+    
+</body>
+</html>

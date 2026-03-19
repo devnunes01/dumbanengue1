@@ -1,0 +1,62 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <title>Pagamentos</title>
+</head>
+<body>
+    
+
+    <div class="pagamento">
+    <h2>Pagamentos</h2>
+    <p> Total: {{ total}} MZN</p>
+    <p>Referencia: {{ referencia }}</p>
+    <p class="mpesa-notice">
+                    <i class="fas fa-mobile-alt"></i> Pagamentos via M-Pesa paga facil- Código: 1021877
+                </p>
+                <p class="emola-notice">
+                    <i class="fas fa-mobile-alt"></i> Pagamentos via E-Mola: 868125856
+                </p>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="file-input-label" for="foto"><i class="fas fa-image"></i> Comprovante</label>
+          <label class="file-input-wrapper">
+            <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+            <input id="foto" type="file" name="transacao" accept="image/*" required>
+          </label>
+          <div class="image-preview" id="paymentPreview"></div>
+        </div>
+     <button type="submit" class="btn-primary btn-block"><i class="fas fa-upload"></i> Enviar Comprovante</button>
+    </form>
+    </div>
+
+    <script>
+        const paymentInput = document.getElementById('foto');
+        const paymentPreview = document.getElementById('paymentPreview');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização do comprovante';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput) {
+            paymentInput.addEventListener('change', () => renderImagePreview(paymentInput, paymentPreview));
+        }
+
+        
+    </script>
+</body>
+</html>

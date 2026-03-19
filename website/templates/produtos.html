@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Dumbanengue</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><i class="fas fa-store"></i> Dumbanengue</h1>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'website:index' %}"><i class="fas fa-home"></i> Início</a>
+                <a href="{% url 'website:login' %}" class="active"><i class="fas fa-shopping-bag"></i> login</a>
+                <a href="{% url 'website:planos' %}"><i class="fas fa-crown"></i> Planos</a>
+                <div class="user-menu" id="userMenu">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+                
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Filtros e Busca -->
+    <section class="products-filters">
+        <div class="container">
+            <div class="filters-container">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar produtos...">
+                    <button onclick="searchProducts()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <label for="categoryFilter"><i class="fas fa-filter"></i> Categoria</label>
+                        <select id="categoryFilter" onchange="filterProducts()">
+                            <option value="">Todas as categorias</option>
+                            <option value="eletronicos">Eletrônicos</option>
+                            <option value="vestuario">Vestuário</option>
+                            <option value="casa">Casa e Jardim</option>
+                            <option value="automoveis">Automóveis</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="priceFilter"><i class="fas fa-money-bill-wave"></i> Preço</label>
+                        <select id="priceFilter" onchange="filterProducts()">
+                            <option value="">Todos os preços</option>
+                            <option value="0-1000">Até 1.000 MT</option>
+                            <option value="1000-5000">1.000 - 5.000 MT</option>
+                            <option value="5000-10000">5.000 - 10.000 MT</option>
+                            <option value="10000+">Acima de 10.000 MT</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="sortBy"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
+                        <select id="sortBy" onchange="sortProducts()">
+                            <option value="recentes">Mais recentes</option>
+                            <option value="preco_asc">Preço: menor para maior</option>
+                            <option value="preco_desc">Preço: maior para menor</option>
+                            <option value="popular">Mais populares</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lista de Produtos -->
+    <main class="products-container">
+        <div class="container">
+            <div class="products-header">
+                <h2><i class="fas fa-box-open"></i> Produtos Disponíveis</h2>
+                <p id="productsCount">Carregando produtos...</p>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                <!-- Produtos serão carregados via JavaScript -->
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Carregando produtos...</p>
+                    {% for produto in produtos %}
+                    <div>
+                        <a href="{% url 'detalhe_produto' produto.id %}">
+                            <img src="{{ produto.foto.url }}" width="200">
+                            <h3>{{ produto.nome }}</h3>
+                            <p>{{ produto.preco}}MZN </p>
+                        </a>
+                    </div>
+                    {% end for %}
+                </div>
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- Paginação será gerada via JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Detalhes do Produto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content product-modal">
+            <span class="close-modal">&times;</span>
+            <div class="product-modal-content" id="productModalContent">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Frete -->
+    <div id="freteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-truck"></i> Calcular Frete</h2>
+            
+            <div class="frete-calculator">
+                <p>Para calcular o frete, precisamos da sua localização</p>
+                
+                <div class="form-group">
+                    <label for="userLocation"><i class="fas fa-map-marker-alt"></i> Sua Localização</label>
+                    <input type="text" id="userLocation" placeholder="Digite sua cidade ou bairro">
+                </div>
+                
+                <button class="btn-primary" onclick="calculateFrete()">
+                    <i class="fas fa-calculator"></i> Calcular Frete
+                </button>
+                
+                <div id="freteResult" class="frete-result" style="display: none;">
+                    <h3>Resultado do Cálculo</h3>
+                    <div class="frete-options">
+                        <div class="frete-option">
+                            <input type="radio" id="freteStandard" name="freteOption" value="standard" checked>
+                            <label for="freteStandard">
+                                <strong>Padrão</strong>
+                                <span id="freteStandardPrice">- MT</span>
+                                <small>Entrega em 3-5 dias úteis</small>
+                            </label>
+                        </div>
+                        <div class="frete-option">
+                            <input type="radio" id="freteExpress" name="freteOption" value="express">
+                            <label for="freteExpress">
+                                <strong>Expresso</strong>
+                                <span id="freteExpressPrice">- MT</span>
+                                <small>Entrega em 1-2 dias úteis</small>
+                            </label>
+                        </div>
+                        <div class="frete-option">
+                            <input type="radio" id="fretePickup" name="freteOption" value="pickup">
+                            <label for="fretePickup">
+                                <strong>Levantamento</strong>
+                                <span>Grátis</span>
+                                <small id="pickupPointsText">Retire no ponto mais próximo</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="selectFreteOption()">
+                        <i class="fas fa-check"></i> Selecionar Frete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+</html>

@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - NunesTrader</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-bell"></i> Notificações</h2>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="painel.html"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
+                <a href="mensagens.html"><i class="fas fa-envelope"></i> Mensagens</a>
+                <a href="pedidos.html"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1><i class="fas fa-bell"></i> Notificações</h1>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i> Marcar Todas como Lidas
+                    </button>
+                    <button class="btn-secondary" onclick="clearOldNotifications()">
+                        <i class="fas fa-trash"></i> Limpar Antigas
+                    </button>
+                </div>
+            </header>
+
+            <div class="notifications-container">
+                <!-- Filtros -->
+                <div class="notifications-filters">
+                    <button class="filter-btn active" data-filter="todos" onclick="filterNotifications('todos')">
+                        Todas
+                    </button>
+                    <button class="filter-btn" data-filter="nao-lidas" onclick="filterNotifications('nao-lidas')">
+                        Não Lidas
+                    </button>
+                    <button class="filter-btn" data-filter="sucesso" onclick="filterNotifications('sucesso')">
+                        <i class="fas fa-check-circle"></i> Sucesso
+                    </button>
+                    <button class="filter-btn" data-filter="alerta" onclick="filterNotifications('alerta')">
+                        <i class="fas fa-exclamation-triangle"></i> Alertas
+                    </button>
+                    <button class="filter-btn" data-filter="promocao" onclick="filterNotifications('promocao')">
+                        <i class="fas fa-gift"></i> Promoções
+                    </button>
+                </div>
+
+                <!-- Lista de Notificações -->
+                <div class="notifications-list" id="notificationsList">
+                    <!-- Notificações serão carregadas via JavaScript -->
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Carregando notificações...</p>
+                    </div>
+                </div>
+
+                <!-- Paginação -->
+                <div class="notifications-pagination" id="notificationsPagination"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'website/js/config.js' %}"></script>
+    <script src="{% static 'website/js/auth.js' %}"></script>
+    <script src="{% static 'website/js/interacao.js' %}"></script>
+    <script>
+        let currentFilter = 'todos';
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar autenticação
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Carregar informações do usuário
+            const response = await fetch(`/api/profiles/${user.id}`);
+            const profile = await response.json();
+                
+            document.getElementById('userInfo').innerHTML = `
+                <h3>${profile.nome}</h3>
+            `;
+
+            // Carregar notificações
+            await loadNotifications();
+        });
+
+        async function loadNotifications(page = 1) {
+            try {
+                currentPage = page;
+                
+                const response = await fetch(`/api/notifications?userId=${localStorage.getItem('userId')}&limit=100`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderNotifications(result.notifications, page);
+                    updatePagination(result.notifications.length);
+                } else {
+                    showToast('Erro ao carregar notificações', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao carregar notificações', 'error');
+            }
+        }
+
+        function renderNotifications(notifications, page) {
+            const notificationsList = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="empty-notifications">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>Nenhuma notificação</h3>
+                        <p>Você não tem notificações no momento</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Aplicar filtro
+            let filteredNotifications = notifications;
+            
+            if (currentFilter === 'nao-lidas') {
+                filteredNotifications = notifications.filter(n => !n.lida);
+            } else if (currentFilter !== 'todos') {
+                filteredNotifications = notifications.filter(n => n.tipo === currentFilter);
+            }
+
+            // Aplicar paginação
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageNotifications = filteredNotifications.slice(start, end);
+
+            notificationsList.innerHTML = pageNotifications.map(notif => `
+                <div class="notification-item ${notif.tipo} ${notif.lida ? 'read' : 'unread'}" 
+                     onclick="handleNotificationClick('${notif.id}', '${notif.acao_url}')">
+                    <div class="notification-icon">
+                        ${getNotificationIcon(notif.tipo)}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <h4>${notif.titulo}</h4>
+                            <span class="notification-time">${formatDate(notif.created_at)}</span>
+                        </div>
+                        <p>${notif.mensagem}</p>
+                        ${notif.acao_url ? `
+                            <div class="notification-actions">
+                                <a href="${notif.acao_url}" class="btn-notification-action">
+                                    ${notif.acao_texto || 'Ver detalhes'} <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!notif.lida ? `
+                        <button class="btn-mark-read" onclick="markSingleAsRead('${notif.id}', event)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                'info': '<i class="fas fa-info-circle"></i>',
+                'sucesso': '<i class="fas fa-check-circle"></i>',
+                'alerta': '<i class="fas fa-exclamation-triangle"></i>',
+                'erro': '<i class="fas fa-times-circle"></i>',
+                'promocao': '<i class="fas fa-gift"></i>'
+            };
+            return icons[type] || '<i class="fas fa-bell"></i>';
+        }
+
+        function filterNotifications(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Recarregar notificações
+            loadNotifications(1);
+        }
+
+        async function markAllAsRead() {
+            if (confirm('Marcar todas as notificações como lidas?')) {
+                const response = await fetch('/api/notifications/markAllAsRead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: localStorage.getItem('userId') })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Todas as notificações marcadas como lidas', 'success');
+                    await loadNotifications(currentPage);
+                } else {
+                    showToast('Erro ao marcar notificações', 'error');
+                }
+            }
+        }
+
+        async function markSingleAsRead(notificationId, event) {
+            event.stopPropagation(); // Evitar clique no item
+            
+            const response = await fetch(`/api/notifications/${notificationId}/markAsRead`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                // Atualizar visualmente
+                const item = document.querySelector(`[onclick*="${notificationId}"]`);
+                if (item) {
+                    item.classList.remove('unread');
+                    item.classList.add('read');
+                    item.querySelector('.btn-mark-read')?.remove();
+                }
+                
+                showToast('Notificação marcada como lida', 'success');
+            }
+        }
+
+        async function clearOldNotifications() {
+            if (confirm('Remover notificações com mais de 30 dias?')) {
+                const response = await fetch('/api/notifications/clearOld', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: localStorage.getItem('userId'), days: 30 })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await loadNotifications(currentPage);
+                } else {
+                    showToast('Erro ao limpar notificações', 'error');
+                }
+            }
+        }
+
+        async function handleNotificationClick(notificationId, actionUrl) {
+            // Marcar como lida
+            await markSingleAsRead(notificationId, new Event('click'));
+            
+            // Navegar se houver ação
+            if (actionUrl) {
+                window.location.href = actionUrl;
+            }
+        }
+
+        function updatePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const paginationDiv = document.getElementById('notificationsPagination');
+            
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = `
+                <button onclick="loadNotifications(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button onclick="loadNotifications(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            `;
+
+            // Mostrar páginas próximas
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button onclick="loadNotifications(${i})" class="${currentPage === i ? 'active' : ''}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            paginationHTML += `
+                <button onclick="loadNotifications(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button onclick="loadNotifications(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            `;
+
+            paginationDiv.innerHTML = paginationHTML;
+        }
+    </script>
+</body>
+</html>

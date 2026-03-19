@@ -1,0 +1,456 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensagens - NunesTrader</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-comments"></i> Mensagens</h2>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="painel.html"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a>
+                <a href="produtos.html"><i class="fas fa-shopping-bag"></i> Produtos</a>
+                <a href="pedidos.html"><i class="fas fa-shopping-cart"></i> Meus Pedidos</a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1><i class="fas fa-envelope"></i> Mensagens</h1>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="startNewConversation()">
+                        <i class="fas fa-plus"></i> Nova Mensagem
+                    </button>
+                    <button class="btn-secondary" onclick="refreshMessages()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+            </header>
+
+            <div class="messages-container">
+                <!-- Lista de Conversas -->
+                <div class="conversations-list">
+                    <div class="conversations-header">
+                        <h3>Conversas</h3>
+                        <div class="search-conversations">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchConversations" placeholder="Buscar conversas...">
+                        </div>
+                    </div>
+                    
+                    <div class="conversations" id="conversationsList">
+                        <!-- Conversas serão carregadas via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Área de Mensagens -->
+                <div class="messages-area">
+                    <div class="messages-header" id="messagesHeader">
+                        <h3>Selecione uma conversa</h3>
+                    </div>
+                    
+                    <div class="messages-content" id="messagesContent">
+                        <div class="empty-messages">
+                            <i class="fas fa-comments"></i>
+                            <h3>Nenhuma conversa selecionada</h3>
+                            <p>Selecione uma conversa ou inicie uma nova</p>
+                        </div>
+                    </div>
+                    
+                    <div class="message-input-container" id="messageInputContainer" style="display: none;">
+                        <div class="message-input">
+                            <input type="text" id="messageText" placeholder="Digite sua mensagem...">
+                            <button class="btn-primary" onclick="sendNewMessage()">
+                                <i class="fas fa-paper-plane"></i> Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Nova Conversa -->
+    <div id="newConversationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-plus"></i> Nova Conversa</h2>
+            
+            <div class="form-group">
+                <label for="searchUser"><i class="fas fa-search"></i> Buscar Usuário</label>
+                <input type="text" id="searchUser" placeholder="Nome, e-mail ou telefone">
+                <div class="search-results" id="userSearchResults"></div>
+            </div>
+            
+            <div class="selected-user" id="selectedUser" style="display: none;">
+                <h4>Conversar com:</h4>
+                <div id="selectedUserInfo"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="messageSubject"><i class="fas fa-tag"></i> Assunto (opcional)</label>
+                <input type="text" id="messageSubject" placeholder="Assunto da mensagem">
+            </div>
+            
+            <div class="form-group">
+                <label for="initialMessage"><i class="fas fa-comment"></i> Mensagem</label>
+                <textarea id="initialMessage" rows="4" placeholder="Digite sua mensagem..." required></textarea>
+            </div>
+            
+            <button class="btn-primary btn-block" onclick="createNewConversation()">
+                <i class="fas fa-paper-plane"></i> Enviar Mensagem
+            </button>
+        </div>
+    </div>
+
+    <script src="{% static 'website/js/config.js' %}"></script>
+    <script src="{% static 'website/js/auth.js' %}"></script>
+    <script src="{% static 'website/js/interacao.js' %}"></script>
+    <script>
+        let currentConversation = null;
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar autenticação
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            
+            // Carregar informações do usuário
+            const response = await fetch(`/api/profiles/${user.id}`);
+            const profile = await response.json();
+                
+            document.getElementById('userInfo').innerHTML = `
+                <h3>${profile.nome}</h3>
+            `;
+
+            // Carregar conversas
+            await loadConversations();
+            
+            // Configurar eventos
+            setupMessageEventListeners();
+            
+            // Verificar parâmetros da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const conversationId = urlParams.get('conversation');
+            const userId = urlParams.get('user');
+            
+            if (conversationId) {
+                await loadConversation(conversationId);
+            } else if (userId) {
+                await startConversationWithUser(userId);
+            }
+        });
+
+        async function loadConversations() {
+            try {
+                const response = await fetch(`/api/conversations?userId=${currentUser.id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderConversations(result.conversations);
+                } else {
+                    showToast('Erro ao carregar conversas', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao carregar conversas', 'error');
+            }
+        }
+
+        function renderConversations(conversations) {
+            const conversationsList = document.getElementById('conversationsList');
+            
+            if (!conversations || conversations.length === 0) {
+                conversationsList.innerHTML = `
+                    <div class="empty-conversations">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>Nenhuma conversa ainda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            conversationsList.innerHTML = conversations.map(conv => {
+                const lastMessage = conv.lastMessage?.mensagem 
+                    ? truncateText(conv.lastMessage.mensagem, 50)
+                    : 'Sem mensagens';
+                
+                const timeAgo = conv.ultima_mensagem 
+                    ? getTimeAgo(new Date(conv.ultima_mensagem))
+                    : '';
+                
+                return `
+                    <div class="conversation-item ${conv.unreadCount > 0 ? 'unread' : ''}" 
+                         onclick="loadConversationWithUser('${conv.user.id}')">
+                        <div class="conversation-avatar">
+                            <i class="fas fa-user"></i>
+                            ${conv.user.verificado ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}
+                        </div>
+                        <div class="conversation-info">
+                            <div class="conversation-header">
+                                <strong>${conv.user.nome}</strong>
+                                <span class="conversation-time">${timeAgo}</span>
+                            </div>
+                            <p class="conversation-preview">${lastMessage}</p>
+                            ${conv.unreadCount > 0 ? `
+                                <span class="unread-badge">${conv.unreadCount}</span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadConversationWithUser(otherUserId) {
+            try {
+                currentConversation = otherUserId;
+                
+                // Obter informações do usuário
+                const response = await fetch(`/api/profiles/${otherUserId}`);
+                const userInfo = await response.json();
+                
+                // Atualizar header
+                document.getElementById('messagesHeader').innerHTML = `
+                    <div class="conversation-header-info">
+                        <div class="conversation-avatar">
+                            <i class="fas fa-user"></i>
+                            ${userInfo.verificado ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}
+                        </div>
+                        <div>
+                            <h3>${userInfo.nome}</h3>
+                            <small>${userInfo.tipo === 'vendedor' ? 'Vendedor' : 'Comprador'}</small>
+                        </div>
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="btn-secondary" onclick="markAllMessagesAsRead('${otherUserId}')">
+                            <i class="fas fa-check-double"></i> Marcar como lidas
+                        </button>
+                    </div>
+                `;
+                
+                // Mostrar input de mensagem
+                document.getElementById('messageInputContainer').style.display = 'block';
+                
+                // Carregar mensagens
+                await loadMessages(otherUserId);
+                
+                // Atualizar conversas (para remover badge de não lidas)
+                await loadConversations();
+                
+            } catch (error) {
+                console.error('Erro ao carregar conversa:', error);
+                showToast('Erro ao carregar conversa', 'error');
+            }
+        }
+
+        async function loadMessages(otherUserId, page = 1) {
+            try {
+                const response = await fetch(`/api/messages?userId=${currentUser.id}&otherUserId=${otherUserId}&page=${page}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderMessages(result.messages);
+                    setupMessagePagination(result.pages, page, otherUserId);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar mensagens:', error);
+            }
+        }
+
+        function renderMessages(messages) {
+            const messagesContent = document.getElementById('messagesContent');
+            
+            if (!messages || messages.length === 0) {
+                messagesContent.innerHTML = `
+                    <div class="empty-conversation">
+                        <i class="fas fa-comment-medical"></i>
+                        <p>Inicie a conversa</p>
+                        <small>Envie sua primeira mensagem</small>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por data (mais antigas primeiro)
+            messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            
+            messagesContent.innerHTML = messages.map(msg => {
+                const isCurrentUser = msg.remetente_id === currentUser.id;
+                const time = formatDate(msg.created_at);
+                
+                return `
+                    <div class="message-bubble ${isCurrentUser ? 'sent' : 'received'}">
+                        <div class="message-header">
+                            <strong>${msg.remetente.nome}</strong>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-content">
+                            ${msg.assunto ? `<div class="message-subject">${msg.assunto}</div>` : ''}
+                            <p>${msg.mensagem}</p>
+                        </div>
+                        ${isCurrentUser && msg.lida ? `
+                            <div class="message-status">
+                                <i class="fas fa-check-double"></i> Lida
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // Scroll para o final
+            messagesContent.scrollTop = messagesContent.scrollHeight;
+        }
+
+        async function sendNewMessage() {
+            const messageText = document.getElementById('messageText').value.trim();
+            
+            if (!messageText || !currentConversation) {
+                showToast('Digite uma mensagem', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        remetente_id: currentUser.id,
+                        destinatario_id: currentConversation,
+                        mensagem: messageText
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Limpar input
+                    document.getElementById('messageText').value = '';
+                    
+                    // Recarregar mensagens
+                    await loadMessages(currentConversation);
+                    
+                    // Recarregar conversas
+                    await loadConversations();
+                }
+            } catch (error) {
+                console.error('Erro ao enviar mensagem:', error);
+                showToast('Erro ao enviar mensagem', 'error');
+            }
+        }
+
+        function startNewConversation() {
+            document.getElementById('newConversationModal').style.display = 'block';
+        }
+
+        async function searchUsers() {
+            const searchTerm = document.getElementById('searchUser').value.trim();
+            
+            if (searchTerm.length < 2) {
+                document.getElementById('userSearchResults').innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users?search=${searchTerm}`);
+                const users = await response.json();
+
+                const resultsDiv = document.getElementById('userSearchResults');
+                
+                if (!users || users.length === 0) {
+                    resultsDiv.innerHTML = '<p class="no-results">Nenhum usuário encontrado</p>';
+                    return;
+                }
+
+                resultsDiv.innerHTML = users.map(user => `
+                    <div class="user-result" onclick="selectUserForConversation('${user.id}')">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <strong>${user.nome}</strong>
+                            <small>${user.email}</small>
+                        </div>
+                        <span class="user-type">${user.tipo === 'vendedor' ? 'Vendedor' : 'Comprador'}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro na busca:', error);
+            }
+        }
+
+        function selectUserForConversation(userId) {
+            // Implementar seleção de usuário
+            // Fechar modal e iniciar conversa
+            document.getElementById('newConversationModal').style.display = 'none';
+            loadConversationWithUser(userId);
+        }
+
+        async function refreshMessages() {
+            if (currentConversation) {
+                await loadMessages(currentConversation);
+            }
+            await loadConversations();
+            showToast('Mensagens atualizadas', 'success');
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (minutes < 60) return `${minutes}m`;
+            if (hours < 24) return `${hours}h`;
+            if (days < 7) return `${days}d`;
+            return formatDate(date);
+        }
+
+        function setupMessageEventListeners() {
+            // Busca em conversas
+            document.getElementById('searchConversations').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+
+            // Busca de usuários
+            document.getElementById('searchUser').addEventListener('input', searchUsers);
+
+            // Enviar mensagem com Enter
+            document.getElementById('messageText').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendNewMessage();
+                }
+            });
+
+            // Fechar modal
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('newConversationModal').style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

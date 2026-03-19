@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ produto.nome }} - NunesTrader</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="produto-detalhe">
+    <div class="container">
+        <div class="product-details">
+            <div class="product-images">
+                <img src="{{ produto.foto.url }}" alt="{{ produto.nome }}">
+            </div>
+            <div class="product-info">
+                <h2>{{ produto.nome }}</h2>
+                <p class="product-category"><i class="fas fa-tags"></i> {{ produto.categoria }}</p>
+                <p class="product-price">{{ produto.preco }} MZN</p>
+                <p class="product-description">{{ produto.descricao }}</p>
+                <p class="product-meta">
+                    <span><i class="fas fa-clock"></i> Prazo: {{ produto.prazo }} dias</span>
+                </p>
+
+                <form action="{% url 'website:adicionar_carrinho' produto.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-primary btn-block">
+                        <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+ 

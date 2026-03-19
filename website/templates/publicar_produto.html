@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar Produto - NunesTrader</title>
+  <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1><i class="fas fa-store"></i> Publicar Produto</h1>
+        <p>Preencha os dados do produto para publicá-lo no marketplace</p>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="nome"><i class="fas fa-tag"></i> Nome</label>
+          <input id="nome" type="text" name="nome" placeholder="Nome do produto" required>
+        </div>
+        <div class="form-group">
+          <label for="categoria"><i class="fas fa-list"></i> Categoria</label>
+          <select id="categoria" name="categoria" required>
+            <option value="eletronicos">Eletrônicos</option>
+            <option value="roupas">Roupas</option>
+            <option value="veiculos">Veículos</option>
+            <option value="outros">Outros</option>
+            <option value="servicos">Serviços</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="descricao"><i class="fas fa-align-left"></i> Descrição</label>
+          <textarea id="descricao" name="descricao" placeholder="Descrição (tamanho, cores, etc)" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="preco"><i class="fas fa-money-bill-wave"></i> Preço</label>
+          <input id="preco" type="number" name="preco" placeholder="Preço" required>
+        </div>
+        <div class="form-group">
+          <label for="prazo"><i class="fas fa-clock"></i> Prazo (dias)</label>
+          <input id="prazo" type="number" name="prazo" placeholder="Prazo de entrega" required>
+        </div>
+        <div class="form-group">
+          <label class="file-input-label" for="foto"><i class="fas fa-image"></i> Foto</label>
+          <label class="file-input-wrapper">
+            <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+            <input id="foto" type="file" name="foto" accept="image/*" required>
+          </label>
+          <div class="image-preview" id="paymentPreview"></div>
+        </div>
+        </div>
+        <button type="submit" class="btn-primary btn-block"><i class="fas fa-upload"></i> Publicar</button>
+      </form>
+    </div>
+  </div>
+  <script>
+        const paymentInput = document.getElementById('foto');
+        const paymentPreview = document.getElementById('paymentPreview');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização da imagem do produto';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput) {
+            paymentInput.addEventListener('change', () => renderImagePreview(paymentInput, paymentPreview));
+        }
+    </script>
+
+</body>
+</html>

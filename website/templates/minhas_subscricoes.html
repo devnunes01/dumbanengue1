@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Subscrições </title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-receipt"></i> Minhas Subscrições</h1>
+            <p>Aqui ficam as suas solicitações de planos (pagamentos enviados).</p>
+        </div>
+
+        {% if subscricoes %}
+            <div class="products-grid">
+                {% for sub in subscricoes %}
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h3>Status: <span class="badge {% if sub.status == 'aprovado' %}verified{% elif sub.status == 'recusado' %}badge-danger{% else %}badge{% endif %}">{{ sub.get_status_display }}</span></h3>
+                            <p><strong>Enviado em:</strong> {{ sub.data|date:'d/m/Y H:i' }}</p>
+                            <p><strong>ID:</strong> {{ sub.id }}</p>
+                            <p><strong>Foto enviada:</strong></p>
+                        </div>
+                        <img src="{{ sub.foto.url }}" alt="Comprovante" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-products">
+                <i class="fas fa-info-circle"></i>
+                <h3>Nenhuma subscrição encontrada</h3>
+                <p>Não encontramos nenhum pagamento de plano associado à sua conta.</p>
+                <a class="btn-primary" href="{% url 'website:planos' %}">Ver Planos</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

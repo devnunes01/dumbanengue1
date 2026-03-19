@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Conta </title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1><i class="fas fa-id-card"></i> Verificação de Identidade</h1>
+                <p>Para sua segurança e dos outros usuários, precisamos verificar sua identidade</p>
+            </div>
+
+            
+
+            <form  method="POST" id="verificationForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="file-input-label" for="fotofrente"><i class="fas fa-file-image"></i> Documento de Identidade (frente)</label>
+                    <p class="form-help">Tire uma foto nítida do seu documento (frente)</p>
+                    <label class="file-input-wrapper">
+                        <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+                        <input type="file" id="foto" accept="image/*" required name="fotofrente">
+                    </label>
+                    <div class="image-preview" id="paymentPreview"></div>
+        
+                </div>
+                <div class="form-group">
+                    <label class="file-input-label" for="fotoverso"><i class="fas fa-file-image"></i> Documento de Identidade (verso)</label>
+                    <p class="form-help">Tire uma foto nítida do seu documento (verso)</p>
+                    <label class="file-input-wrapper">
+                        <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+                        <input type="file" id="fotoverso" accept="image/*" required name="fotoverso">
+                    </label>
+                    <div class="image-preview" id="paymentPreview1"></div>
+        
+                </div>
+
+                <div class="form-group">
+                    <label class="file-input-label" for="selfiePhoto"><i class="fas fa-camera"></i> Selfie Atual</label>
+                    <p class="form-help">Tire uma selfie clara para comparação</p>
+                    <label class="file-input-wrapper">
+                        <span class="file-input-button"><i class="fas fa-upload"></i> Selecionar imagem</span>
+                        <input type="file" id="selfiePhoto" accept="image/*" required name="rosto">
+                    </label>
+                    <div class="image-preview" id="paymentPreview2"></div>
+        
+                </div>
+
+                
+
+                <div class="form-group terms">
+                    <input type="checkbox" id="consent" required>
+                    <label for="consent">Autorizo o uso destas imagens apenas para fins de verificação de identidade no Dumbanengue</label>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-paper-plane"></i> Enviar para Verificação
+                </button>
+
+                <div class="auth-links">
+                    <p><a href="{% url 'website:lista_produtos' %}"><i class="fas fa-arrow-left"></i> Voltar ao Painel</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        const paymentInput = document.getElementById('foto');
+        const paymentPreview = document.getElementById('paymentPreview');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização do comprovante';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput) {
+            paymentInput.addEventListener('change', () => renderImagePreview(paymentInput, paymentPreview));
+        }
+</script>
+    <script>
+        const paymentInput1 = document.getElementById('fotoverso');
+        const paymentPreview1 = document.getElementById('paymentPreview1');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização do comprovante';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput1) {
+            paymentInput1.addEventListener('change', () => renderImagePreview(paymentInput1, paymentPreview1));
+        }
+</script>
+<script>
+        const paymentInput2 = document.getElementById('selfiePhoto');
+        const paymentPreview2 = document.getElementById('paymentPreview2');
+
+        function renderImagePreview(input, previewContainer) {
+            previewContainer.innerHTML = '';
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Pré-visualização do comprovante';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        if (paymentInput2) {
+            paymentInput2.addEventListener('change', () => renderImagePreview(paymentInput2, paymentPreview2));
+        }
+</script>
+
+  
+</body>
+</html>

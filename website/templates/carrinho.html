@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho </title>
+  <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Meu Carrinho</h1>
+
+    {% for item in itens %}
+      <div class="product-card">
+        <img  src="{{ item.produto.foto.url }}" alt="{{ item.produto.nome }}">
+        <div wid class="product-card-body">
+          <h3>{{ item.produto.nome }}</h3>
+          <p>Preço: {{ item.produto.preco }} MZN</p>
+          <p>Quantidade: {{ item.quantidade }}</p>
+          <p>Subtotal: {{ item.subtotal }} MZN</p>
+          <div class="product-actions">
+            <a class="btn-secondary btn-sm" href="{% url 'website:aumentar_quantidade' item.id %}"><button style="color: black;">+</button></a>
+            <a class="btn-secondary btn-sm" href="{% url 'website:diminuir_quantidade' item.id %}"><button style="color: black;">-</button></a><br>
+            <a class="btn-danger btn-sm" href="{% url 'website:remover_item' item.id %}">x</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="dashboard-section">
+      <p>Subtotal: {{ subtotal }} MZN</p>
+      <p>Taxa 5%: {{ taxa }} MZN</p>
+      <p>Frete: {{ frete }} MZN</p>
+      <h2>Total: {{ total }} MZN</h2>
+      <div class="product-actions">
+        <a class="btn-primary" href="{% url 'website:frete' %}">Adicionar frete</a>
+        <a class="btn-success" href="{% url 'website:pagamento' %}">Ir para o pagamento</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

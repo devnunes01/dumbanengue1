@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Anderson Nunes">
+    <title>meu painel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        
+        .cart {
+            font-size: 30px;
+            color: #28a745;
+            cursor: pointer;
+        }
+        .st{
+          color: black;
+          font-family: 'Pacifico', cursive;
+          font-size: 25px;
+          text-align: center;
+          margin-bottom: 10px;
+        
+        }
+        .frame{
+          border:none;
+        }
+        .pesquisa {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto 0px;
+      display: block;
+    }
+        .pesquisa input {
+      width: 100%;
+      padding: 5px 5px;
+      border-radius: 30px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+        .pesquisa input:focus {
+      border-color: #000;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      background-color: tan
+    }
+      iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 15px;
+      background: #fff;
+    }
+
+    /* Container */
+    .container {
+      max-width: 100%;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .sugestoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .bolha {
+    background: #1e293b;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .bolha:hover {
+    background: #2c3e50;
+    color: #fff;
+  }
+
+  .category-btn.active {
+    background: #3498db;
+    border-color: #3498db;
+    color: #fff;
+  }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="st">DumbaNengue🛍️</h1>
+
+        <div class="search-bar" style="margin: 1rem 0; display:flex; gap:0.5rem; align-items:center; justify-content:center;">
+            <input id="searchInput" type="text" placeholder="Pesquisar por nome ou categoria..." style="flex:1; max-width:400px; color:#000;" />
+            <button id="searchBtn" class="btn-primary" style="white-space: nowrap;"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+        <style>
+            .search-bar input::placeholder { color: #666; }
+        </style>
+
+        <div class="sugestoes" style="justify-content:center; gap:0.5rem; margin-bottom:1rem;">
+            <button class="bolha category-btn active" data-cat="">Todos</button>
+            <button class="bolha category-btn" data-cat="eletronicos">Eletrônicos</button>
+            <button class="bolha category-btn" data-cat="roupas">Roupas</button>
+            <button class="bolha category-btn" data-cat="veiculos">Veículos</button>
+            <button class="bolha category-btn" data-cat="servicos">Serviços</button>
+            <button class="bolha category-btn" data-cat="outros">Outros</button>
+        </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem;">
+            <a href="{% url 'website:sobre' %}" target="iframe1" class="bolha">ℹ️ Sobre nós</a>
+            <a href="{% url 'website:lista_produtos' %}" target="iframe1" class="bolha">🌍 Tudo</a>
+            <a class="bolha">🚀 Imediatas</a>
+            <a class="bolha" href="{% url 'website:ver_carrinho' %}" target="iframe1">🛒 Pedidos</a>
+            <a class="bolha" href="{% url 'website:publicar_produto' %}">➕ Novo produto</a>
+            <a class="bolha" href="{% url 'website:menu' %}" target="iframe1">☰ Menu</a>
+        </div>
+        
+
+        <div>
+            <iframe id="produto_frame" src="{% url 'website:lista_produtos' %}" name="iframe1"></iframe>
+        </div>
+    </div>
+
+    <script>
+      const frame = document.getElementById('produto_frame');
+      const searchInput = document.getElementById('searchInput');
+      const searchBtn = document.getElementById('searchBtn');
+      const categoryButtons = document.querySelectorAll('.category-btn');
+
+      function setActiveCategory(cat) {
+        categoryButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.cat === cat);
+        });
+      }
+
+      function loadProducts({ q = '', categoria = '' } = {}) {
+        const base = "{% url 'website:lista_produtos' %}";
+        const params = new URLSearchParams();
+
+        if (q) params.set('q', q);
+        if (categoria) params.set('categoria', categoria);
+
+        frame.src = `${base}?${params.toString()}`;
+      }
+
+      searchBtn.addEventListener('click', () => {
+        const query = searchInput.value.trim();
+        setActiveCategory('');
+        loadProducts({ q: query, categoria: '' });
+      });
+
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const query = searchInput.value.trim();
+          setActiveCategory('');
+          loadProducts({ q: query, categoria: '' });
+        }
+      });
+
+      categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cat = btn.dataset.cat;
+          setActiveCategory(cat);
+          searchInput.value = '';
+          loadProducts({ categoria: cat });
+        });
+      });
+
+      // Carregar inicialmente todos os produtos
+      loadProducts();
+
+      // Atualiza o iframe de tempos em tempos (opcional)
+      setInterval(() => {
+        frame.contentWindow.location.reload();
+      }, 500000);
+    </script>
+</body>
+</html>

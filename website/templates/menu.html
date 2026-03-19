@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8">
+    <title>Menu - NunesTrader</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        padding: 20px;
+        color: white;
+      }
+      .log {
+        font-size: 20px;
+        color: #3498db;
+      }
+      .log:hover {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Menu</h1><hr>
+    <a class="log" href="{% url 'website:verificar' %}" target="iframe1">verificacao da conta</a><br><br>
+    <a class="log" href="{% url 'website:planos' %}" target="iframe1">Planos</a><br><br>
+    <a class="log" href="{% url 'website:subscricao' %}" target="iframe1">Subscricao</a><br><br>
+    <a class="log" href="{% url 'website:termos' %}" target="iframe1">termos&condicoes</a><br><br>
+    <a class="log" href="{% url 'website:index' %}" target="_top">sair</a>
+
+  </body>
+</html>

@@ -1,0 +1,630 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - dumbanengue</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <nav class="navbar">
+            
+            <div class="nav-links">
+                
+                <div class="user-menu" id="userMenu">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+                <a href="{% url 'website:checkout' %}" class="cart-icon active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="checkout-container">
+        <div class="container">
+            <!-- Progress Steps -->
+            <div class="checkout-steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Carrinho</h3>
+                        <p>Revise seus itens</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Entrega</h3>
+                        <p>Escolha o método</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Pagamento</h3>
+                        <p>Finalize a compra</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-content">
+                <!-- Coluna Esquerda: Resumo do Pedido -->
+                <div class="order-summary">
+                    <h2><i class="fas fa-shopping-cart"></i> Seu Carrinho</h2>
+                    
+                    <div class="cart-items" id="cartItems">
+                        <!-- Itens serão carregados via JavaScript -->
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Carregando carrinho...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">0 MT</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Frete</span>
+                            <span id="freteTotal">0 MT</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Taxa de Serviço</span>
+                            <span id="taxaServico">0 MT</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span><strong>Total</strong></span>
+                            <span id="totalAmount"><strong>0 MT</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-actions">
+                        <button class="btn-secondary" onclick="window.location.href='produtos.html'">
+                            <i class="fas fa-arrow-left"></i> Continuar Comprando
+                        </button>
+                        <button class="btn-primary" id="nextStepBtn" onclick="nextStep()">
+                            Continuar para Entrega <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Etapas do Checkout -->
+                <div class="checkout-steps-content">
+                    <!-- Etapa 1: Carrinho (já visível) -->
+                    
+                    <!-- Etapa 2: Entrega -->
+                    <div class="checkout-step" id="step2" style="display: none;">
+                        <h2><i class="fas fa-truck"></i> Método de Entrega</h2>
+                        
+                        <div class="delivery-options">
+                            <div class="delivery-option active" onclick="selectDeliveryOption('standard')">
+                                <input type="radio" id="deliveryStandard" name="deliveryOption" value="standard" checked>
+                                <label for="deliveryStandard">
+                                    <div class="option-header">
+                                        <i class="fas fa-truck"></i>
+                                        <div>
+                                            <strong>Entrega Padrão</strong>
+                                            <span id="deliveryStandardPrice">Calcular frete</span>
+                                        </div>
+                                    </div>
+                                    <small>Entrega em 3-5 dias úteis</small>
+                                </label>
+                            </div>
+                            
+                            <div class="delivery-option" onclick="selectDeliveryOption('express')">
+                                <input type="radio" id="deliveryExpress" name="deliveryOption" value="express">
+                                <label for="deliveryExpress">
+                                    <div class="option-header">
+                                        <i class="fas fa-shipping-fast"></i>
+                                        <div>
+                                            <strong>Entrega Expressa</strong>
+                                            <span id="deliveryExpressPrice">Calcular frete</span>
+                                        </div>
+                                    </div>
+                                    <small>Entrega em 1-2 dias úteis</small>
+                                </label>
+                            </div>
+                            
+                            <div class="delivery-option" onclick="selectDeliveryOption('pickup')">
+                                <input type="radio" id="deliveryPickup" name="deliveryOption" value="pickup">
+                                <label for="deliveryPickup">
+                                    <div class="option-header">
+                                        <i class="fas fa-store"></i>
+                                        <div>
+                                            <strong>Levantamento</strong>
+                                            <span>Grátis</span>
+                                        </div>
+                                    </div>
+                                    <small>Retire no ponto mais próximo</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Localização para Cálculo de Frete -->
+                        <div class="location-input" id="locationInput">
+                            <h3><i class="fas fa-map-marker-alt"></i> Informe sua Localização</h3>
+                            <p>Para calcular o frete, precisamos da sua localização</p>
+                            
+                            <div class="form-group">
+                                <label for="userCity">Cidade</label>
+                                <input type="text" id="userCity" placeholder="Ex: Maputo, Beira, Nampula...">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="userDistrict">Bairro/Distrito</label>
+                                <input type="text" id="userDistrict" placeholder="Ex: KaMpfumo, Matola, Maxaquene...">
+                            </div>
+                            
+                            <button class="btn-primary" onclick="calculateDelivery()">
+                                <i class="fas fa-calculator"></i> Calcular Frete
+                            </button>
+                        </div>
+                        
+                        <!-- Pontos de Levantamento -->
+                        <div class="pickup-points" id="pickupPoints" style="display: none;">
+                            <h3><i class="fas fa-map-marker-alt"></i> Pontos de Levantamento</h3>
+                            <div class="points-list" id="pointsList">
+                                <!-- Pontos serão carregados via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="checkout-actions">
+                            <button class="btn-secondary" onclick="prevStep()">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </button>
+                            <button class="btn-primary" id="continueToPaymentBtn" onclick="nextStep()" disabled>
+                                Continuar para Pagamento <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 3: Pagamento -->
+                    <div class="checkout-step" id="step3" style="display: none;">
+                        <h2><i class="fas fa-credit-card"></i> Método de Pagamento</h2>
+                        
+                        <div class="payment-options">
+                            <div class="payment-option active" onclick="selectPaymentOption('mpesa')">
+                                <input type="radio" id="paymentMpesa" name="paymentOption" value="mpesa" checked>
+                                <label for="paymentMpesa">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <div>
+                                        <strong>M-Pesa</strong>
+                                        <small>Pagamento rápido e seguro</small>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option" onclick="selectPaymentOption('cash')">
+                                <input type="radio" id="paymentCash" name="paymentOption" value="cash">
+                                <label for="paymentCash">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <div>
+                                        <strong>Dinheiro na Entrega</strong>
+                                        <small>Pague quando receber</small>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option" onclick="selectPaymentOption('bank')">
+                                <input type="radio" id="paymentBank" name="paymentOption" value="bank">
+                                <label for="paymentBank">
+                                    <i class="fas fa-university"></i>
+                                    <div>
+                                        <strong>Transferência Bancária</strong>
+                                        <small>Transferência para conta bancária</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalhes do Pagamento M-Pesa -->
+                        <div class="payment-details" id="mpesaDetails">
+                            <h3><i class="fas fa-mobile-alt"></i> Pagar com M-Pesa</h3>
+                            <div class="mpesa-instructions">
+                                <p>Para pagar, siga estes passos:</p>
+                                <ol>
+                                    <li>Abra o M-Pesa no seu telefone</li>
+                                    <li>Selecione <strong>"Pagar Fácil"</strong></li>
+                                    <li>Digite o código do comerciante: <strong>1021866</strong></li>
+                                    <li>Digite o valor: <strong id="mpesaAmount">0 MT</strong></li>
+                                    <li>Digite sua senha M-Pesa para confirmar</li>
+                                </ol>
+                                
+                                <div class="form-group">
+                                    <label for="mpesaPhone"><i class="fas fa-phone"></i> Número M-Pesa</label>
+                                    <input type="tel" id="mpesaPhone" placeholder="+258 8x xxx xxxx" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="mpesaReference"><i class="fas fa-receipt"></i> Referência do Pagamento</label>
+                                    <input type="text" id="mpesaReference" placeholder="Ex: ORD123456" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="mpesaProof"><i class="fas fa-file-image"></i> Comprovante de Pagamento</label>
+                                    <input type="file" id="mpesaProof" accept="image/*" required>
+                                    <small>Envie uma foto ou screenshot do comprovante</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalhes do Pagamento em Dinheiro -->
+                        <div class="payment-details" id="cashDetails" style="display: none;">
+                            <h3><i class="fas fa-money-bill-wave"></i> Pagamento na Entrega</h3>
+                            <p>Você pagará ao entregador quando receber sua encomenda.</p>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p>Tenha o valor exato em dinheiro para facilitar a transação.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalhes da Transferência Bancária -->
+                        <div class="payment-details" id="bankDetails" style="display: none;">
+                            <h3><i class="fas fa-university"></i> Transferência Bancária</h3>
+                            <div class="bank-info">
+                                <h4>Dados para Transferência:</h4>
+                                <table>
+                                    <tr>
+                                        <td><strong>Banco:</strong></td>
+                                        <td>Standard Bank</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Titular:</strong></td>
+                                        <td>NunesTrader Lda</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Número da Conta:</strong></td>
+                                        <td>1234567890</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>NIB:</strong></td>
+                                        <td>0008 1234 567890 12</td>
+                                    </tr>
+                                </table>
+                                
+                                <div class="form-group">
+                                    <label for="bankReference"><i class="fas fa-receipt"></i> Referência da Transferência</label>
+                                    <input type="text" id="bankReference" placeholder="Ex: NUNES123" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="bankProof"><i class="fas fa-file-image"></i> Comprovante de Transferência</label>
+                                    <input type="file" id="bankProof" accept="image/*" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informações de Contato -->
+                        <div class="contact-info">
+                            <h3><i class="fas fa-user"></i> Informações de Contato</h3>
+                            <div class="form-group">
+                                <label for="fullName">Nome Completo</label>
+                                <input type="text" id="fullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">E-mail</label>
+                                <input type="email" id="contactEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">Telefone</label>
+                                <input type="tel" id="contactPhone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="checkout-actions">
+                            <button class="btn-secondary" onclick="prevStep()">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </button>
+                            <button class="btn-primary" onclick="processPayment()">
+                                <i class="fas fa-lock"></i> Finalizar Compra
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="confirmation-content">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Compra Realizada com Sucesso!</h2>
+                <p id="orderNumber">Seu pedido #ORD123456 foi confirmado.</p>
+                <p>Você receberá um e-mail com os detalhes da sua compra.</p>
+                
+                <div class="order-details">
+                    <h3>Resumo do Pedido</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span>Total Pago:</span>
+                            <strong id="confirmedTotal">0 MT</strong>
+                        </div>
+                        <div class="detail-item">
+                            <span>Método:</span>
+                            <span id="confirmedMethod">M-Pesa</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Entrega:</span>
+                            <span id="confirmedDelivery">3-5 dias úteis</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="confirmation-actions">
+                    <button class="btn-secondary" onclick="window.location.href='produtos.html'">
+                        <i class="fas fa-shopping-bag"></i> Continuar Comprando
+                    </button>
+                    <button class="btn-primary" onclick="window.location.href='painel.html'">
+                        <i class="fas fa-truck"></i> Acompanhar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/checkout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar autenticação
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html?redirect=checkout';
+                return;
+            }
+
+            // Verificar se é comprador
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('tipo, verificado, nome, email, telefone')
+                .eq('id', user.id)
+                .single();
+
+            if (profile.tipo !== 'comprador') {
+                alert('Apenas compradores podem realizar compras');
+                window.location.href = 'produtos.html';
+                return;
+            }
+
+            if (!profile.verificado) {
+                alert('Você precisa verificar sua conta antes de fazer compras');
+                window.location.href = 'verificar.html';
+                return;
+            }
+
+            // Preencher informações do usuário
+            document.getElementById('fullName').value = profile.nome || '';
+            document.getElementById('contactEmail').value = profile.email || '';
+            document.getElementById('contactPhone').value = profile.telefone || '';
+            document.getElementById('mpesaPhone').value = profile.telefone || '';
+
+            // Atualizar menu do usuário
+            updateUserMenu(profile.nome);
+            
+            // Carregar carrinho
+            await loadCart();
+            
+            // Carregar pontos de levantamento
+            await loadPickupPoints();
+        });
+
+        function updateUserMenu(userName) {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.innerHTML = `
+                <a href="painel.html" class="btn-profile">
+                    <i class="fas fa-user-circle"></i> ${userName.split(' ')[0]}
+                </a>
+            `;
+        }
+
+        let currentStep = 1;
+
+        function nextStep() {
+            if (currentStep === 1) {
+                // Validar carrinho
+                if (document.querySelectorAll('.cart-item').length === 0) {
+                    alert('Seu carrinho está vazio!');
+                    return;
+                }
+                
+                // Ir para etapa 2
+                document.querySelector('.checkout-steps .step:nth-child(1)').classList.remove('active');
+                document.querySelector('.checkout-steps .step:nth-child(2)').classList.add('active');
+                document.getElementById('step2').style.display = 'block';
+                currentStep = 2;
+                
+            } else if (currentStep === 2) {
+                // Validar método de entrega
+                const deliveryOption = document.querySelector('input[name="deliveryOption"]:checked').value;
+                
+                if (deliveryOption === 'pickup') {
+                    const selectedPoint = document.querySelector('input[name="pickupPoint"]:checked');
+                    if (!selectedPoint) {
+                        alert('Por favor, selecione um ponto de levantamento');
+                        return;
+                    }
+                } else {
+                    const city = document.getElementById('userCity').value;
+                    const district = document.getElementById('userDistrict').value;
+                    
+                    if (!city || !district) {
+                        alert('Por favor, informe sua localização para calcular o frete');
+                        return;
+                    }
+                }
+                
+                // Ir para etapa 3
+                document.querySelector('.checkout-steps .step:nth-child(2)').classList.remove('active');
+                document.querySelector('.checkout-steps .step:nth-child(3)').classList.add('active');
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step3').style.display = 'block';
+                currentStep = 3;
+            }
+        }
+
+        function prevStep() {
+            if (currentStep === 2) {
+                // Voltar para etapa 1
+                document.querySelector('.checkout-steps .step:nth-child(2)').classList.remove('active');
+                document.querySelector('.checkout-steps .step:nth-child(1)').classList.add('active');
+                document.getElementById('step2').style.display = 'none';
+                currentStep = 1;
+                
+            } else if (currentStep === 3) {
+                // Voltar para etapa 2
+                document.querySelector('.checkout-steps .step:nth-child(3)').classList.remove('active');
+                document.querySelector('.checkout-steps .step:nth-child(2)').classList.add('active');
+                document.getElementById('step3').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                currentStep = 2;
+            }
+        }
+
+        function selectDeliveryOption(option) {
+            document.querySelectorAll('.delivery-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            if (option === 'pickup') {
+                document.getElementById('locationInput').style.display = 'none';
+                document.getElementById('pickupPoints').style.display = 'block';
+            } else {
+                document.getElementById('locationInput').style.display = 'block';
+                document.getElementById('pickupPoints').style.display = 'none';
+            }
+            
+            // Habilitar botão de continuar
+            document.getElementById('continueToPaymentBtn').disabled = false;
+        }
+
+        async function loadPickupPoints() {
+            try {
+                const { data: points, error } = await supabase
+                    .from('pontos_levantamento')
+                    .select('*')
+                    .eq('ativo', true);
+
+                if (error) throw error;
+
+                const pointsList = document.getElementById('pointsList');
+                if (points && points.length > 0) {
+                    let pointsHTML = '';
+                    points.forEach((point, index) => {
+                        pointsHTML += `
+                            <div class="point-item">
+                                <input type="radio" id="point${index}" name="pickupPoint" value="${point.id}">
+                                <label for="point${index}">
+                                    <strong>${point.nome}</strong>
+                                    <p>${point.endereco || ''}</p>
+                                    <small><i class="fas fa-clock"></i> Seg-Sex: 8h-18h | Sáb: 8h-13h</small>
+                                </label>
+                            </div>
+                        `;
+                    });
+                    pointsList.innerHTML = pointsHTML;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar pontos de levantamento:', error);
+            }
+        }
+
+        function selectPaymentOption(option) {
+            document.querySelectorAll('.payment-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Mostrar apenas os detalhes do método selecionado
+            document.getElementById('mpesaDetails').style.display = option === 'mpesa' ? 'block' : 'none';
+            document.getElementById('cashDetails').style.display = option === 'cash' ? 'block' : 'none';
+            document.getElementById('bankDetails').style.display = option === 'bank' ? 'block' : 'none';
+        }
+
+        async function processPayment() {
+            // Coletar dados do formulário
+            const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
+            const deliveryMethod = document.querySelector('input[name="deliveryOption"]:checked').value;
+            const fullName = document.getElementById('fullName').value;
+            const contactPhone = document.getElementById('contactPhone').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            
+            // Validações básicas
+            if (!fullName || !contactPhone || !contactEmail) {
+                alert('Por favor, preencha todas as informações de contato');
+                return;
+            }
+
+            if (paymentMethod === 'mpesa') {
+                const mpesaPhone = document.getElementById('mpesaPhone').value;
+                const mpesaReference = document.getElementById('mpesaReference').value;
+                const mpesaProof = document.getElementById('mpesaProof').files[0];
+                
+                if (!mpesaPhone || !mpesaReference || !mpesaProof) {
+                    alert('Por favor, preencha todos os campos do M-Pesa');
+                    return;
+                }
+            }
+
+            // Mostrar loading
+            const submitBtn = document.querySelector('#step3 .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            submitBtn.disabled = true;
+
+            try {
+                // Simular processamento
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Gerar número do pedido
+                const orderNumber = 'ORD' + Date.now().toString().slice(-6);
+                
+                // Atualizar modal de confirmação
+                document.getElementById('orderNumber').textContent = `Seu pedido #${orderNumber} foi confirmado.`;
+                document.getElementById('confirmedTotal').textContent = document.getElementById('totalAmount').textContent;
+                document.getElementById('confirmedMethod').textContent = 
+                    paymentMethod === 'mpesa' ? 'M-Pesa' : 
+                    paymentMethod === 'cash' ? 'Dinheiro na Entrega' : 'Transferência Bancária';
+                document.getElementById('confirmedDelivery').textContent = 
+                    deliveryMethod === 'express' ? '1-2 dias úteis' : 
+                    deliveryMethod === 'pickup' ? 'Levantamento' : '3-5 dias úteis';
+                
+                // Limpar carrinho
+                await clearCart();
+                
+                // Mostrar modal de confirmação
+                document.getElementById('confirmationModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erro ao processar pagamento:', error);
+                alert('Ocorreu um erro ao processar seu pagamento. Tente novamente.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function clearCart() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase
+                    .from('carrinho')
+                    .delete()
+                    .eq('usuario_id', user.id);
+            }
+        }
+    </script>
+</body>
+</html>

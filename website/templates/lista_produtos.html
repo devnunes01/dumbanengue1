@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos - NunesTrader</title>
+  <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  {% for message in messages %}
+            <h4 style="color: rgb(185, 21, 117);"> {{message}}</h4>
+             {% endfor %}
+  <div class="container">
+    <h1>Produtos</h1>
+
+    <form class="search-bar" method="get" action="">
+      <i class="fas fa-search"></i>
+      
+    </form>
+
+    {% if categoria %}
+      <div class="filter-options">
+        <div class="filter-group">
+          <label>Categoria:</label>
+          <div class="filter-buttons">
+            <span class="badge">{{ categoria|capfirst }}</span>
+            <a href="{% url 'website:lista_produtos' %}" class="btn-secondary btn-sm">Limpar filtro</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if existe %}
+      <div class="products-grid">
+        {% for produto in produtos %}
+          <div class="product-card">
+            <a href="{% url 'website:detalhe_produto' produto.id %}">
+              <img src="{{ produto.foto.url }}" alt="{{ produto.nome }}">
+            </a>
+            <div class="product-info">
+              <h3>{{ produto.nome }}</h3>
+              <p class="product-category"><i class="fas fa-tags"></i> {{ produto.get_categoria_display }}</p>
+              <p class="product-price">{{ produto.preco }} MZN</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="no-products">
+        <i class="fas fa-search"></i>
+        <h3>Nenhum produto encontrado</h3>
+        {% if q %}
+          <p>Nenhum produto encontrado para "<strong>{{ q }}</strong>".</p>
+        {% elif categoria %}
+          <p>Nenhum produto encontrado na categoria "<strong>{{ categoria|capfirst }}</strong>".</p>
+        {% else %}
+          <p>Não conseguimos encontrar produtos para sua pesquisa.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

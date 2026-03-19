@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+   
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1><i class="fas fa-user-plus"></i> Criar Conta</h1>
+                <p>Escolha o tipo de conta que deseja criar</p>
+            </div>
+
+            <div class="account-type-selector">
+                <button class="type-btn active" data-type="comprador">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Comprador</span>
+                    <p>Apenas comprar produtos</p>
+                </button>
+                <button class="type-btn" data-type="vendedor">
+                    <i class="fas fa-store"></i>
+                    <span>Vendedor</span>
+                    <p>Comprar e vender produtos</p>
+                </button>
+            </div>
+            {% for message in messages %}
+         <h4 style="color: rgb(153, 0, 255);"> {{message}}</h4>
+             {% endfor %}
+            <form id="registerForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" id="accountType" name="tipo" value="comprador">
+                
+                <div class="form-group">
+                    <label for="name"><i class="fas fa-user"></i> Nome Completo</label>
+                    <input type="text" id="name" name="nome" required placeholder="Seu nome completo">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> Número de Telefone</label>
+                    <input type="tel" id="phone" name="numero" required placeholder="+258 8x xxx xxxx">
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="password" name="senha1" required placeholder="Mínimo 6 caracteres">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword"><i class="fas fa-lock"></i> Confirmar Senha</label>
+                    <input type="password" id="confirmPassword" name="senha2" required placeholder="Digite novamente">
+                </div>
+
+                <div class="form-group terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a></label>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Criar Conta
+                </button>
+
+                <div class="auth-links">
+                    <p>Já tem uma conta? <a href="{% url 'website:login' %}">Faça login aqui</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Seleção do tipo de conta
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('accountType').value = this.dataset.type;
+            });
+        });
+
+       
+    </script>
+</body>
+</html>
