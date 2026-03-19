@@ -1,0 +1,1 @@
+// Arquivo removido. Supabase não é mais utilizado.
