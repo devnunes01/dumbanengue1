@@ -19,7 +19,7 @@
         .st{
           color: black;
           font-family: 'Pacifico', cursive;
-          font-size: 25px;
+          font-size: 19px;
           text-align: center;
           margin-bottom: 10px;
         
@@ -76,7 +76,7 @@
     padding: 5px 8px;
     border-radius: 999px;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 10px;
     transition: 0.3s;
     border: 1px solid rgba(255,255,255,0.2);
   }
@@ -91,6 +91,11 @@
     border-color: #3498db;
     color: #fff;
   }
+  .iframe22 {
+    position: relative;
+    width: 100%;
+    padding: auto;
+  }
         
     </style>
 </head>
@@ -99,33 +104,34 @@
         <h1 class="st">DumbaNengue🛍️</h1>
 
         <div class="search-bar" style="margin: 1rem 0; display:flex; gap:0.5rem; align-items:center; justify-content:center;">
-            <input id="searchInput" type="text" placeholder="Pesquisar por nome ou categoria..." style="flex:1; max-width:400px; color:#000;" />
+            <input id="searchInput" type="text" placeholder="nome ou categoria..." style="flex:1; max-width:200px; color:#000; width: 100%;min-height: auto;" />
             <button id="searchBtn" class="btn-primary" style="white-space: nowrap;"><i class="fas fa-search"></i> Buscar</button>
         </div>
         <style>
             .search-bar input::placeholder { color: #666; }
         </style>
 
-        <div class="sugestoes" style="justify-content:center; gap:0.5rem; margin-bottom:1rem;">
+        <div class="sugestoes" style="justify-content:center; gap:0.5rem; margin-bottom:1rem; width: 100%; max-width: max-content;">
             <button class="bolha category-btn active" data-cat="">Todos</button>
             <button class="bolha category-btn" data-cat="eletronicos">Eletrônicos</button>
             <button class="bolha category-btn" data-cat="roupas">Roupas</button>
             <button class="bolha category-btn" data-cat="veiculos">Veículos</button>
             <button class="bolha category-btn" data-cat="servicos">Serviços</button>
             <button class="bolha category-btn" data-cat="outros">Outros</button>
-        </div>
-
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem;">
-            <a href="{% url 'website:sobre' %}" target="iframe1" class="bolha">ℹ️ Sobre nós</a>
-            <a href="{% url 'website:lista_produtos' %}" target="iframe1" class="bolha">🌍 Tudo</a>
-            <a class="bolha">🚀 Imediatas</a>
+             <a href="{% url 'website:sobre' %}" target="iframe1" class="bolha">ℹ️ Sobre nós</a>
+            
+            
             <a class="bolha" href="{% url 'website:ver_carrinho' %}" target="iframe1">🛒 Pedidos</a>
             <a class="bolha" href="{% url 'website:publicar_produto' %}">➕ Novo produto</a>
             <a class="bolha" href="{% url 'website:menu' %}" target="iframe1">☰ Menu</a>
         </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; width: 100%;max-width:max-content;gap: 0.5rem;">
+           
+        </div>
         
 
-        <div>
+        <div class="iframe22">
             <iframe id="produto_frame" src="{% url 'website:lista_produtos' %}" name="iframe1"></iframe>
         </div>
     </div>
