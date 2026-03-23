@@ -1,7 +1,7 @@
 import os
 import cloudinary
 import cloudinary.uploader
-CLOUDINARY__URL = os.environ.get('CLOUDINARY_URL')
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 MEDIA_ROOT="media"
 
 cloudinary.config(

@@ -13,6 +13,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+import cloudinary
+
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUD_NAME'),
+    api_key=os.environ.get('API_KEY'),
+    api_secret=os.environ.get('API_SECRET')
+)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'helloworld.urls'
@@ -123,16 +132,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL ='https://dumbanengue-css.onrender.com/'
-#STATIC_URL = '/static/'
+#STATIC_URL ='https://dumbanengue-css.onrender.com/'
+STATIC_URL = '/static/'
 # URL Configuration
 # https://docs.djangoproject.com/en/6.0/ref/settings/#append-slash
 
 APPEND_SLASH = True
 AUTH_USER_MODEL="clientes.Usuarios"
 X_FRAME_OPTIONS='SAMEORIGIN'
-
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 MEDIA_URL="/media/"
 MEDIA_ROOT=BASE_DIR/ "media"
-STATIC_ROOT="staticfiles"
+STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
