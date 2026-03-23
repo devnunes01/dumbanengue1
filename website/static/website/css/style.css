@@ -129,12 +129,14 @@ body {
 .hero-content h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
+    max-width: 100%;
 }
 
 .hero-content p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
     opacity: 0.9;
+    max-width: 100%;
 }
 
 .hero-buttons {
@@ -4213,7 +4215,7 @@ footer {
 .product-card:nth-child(6) { animation-delay: 0.5s; }
 @media (max-width: 400px) {
     .hero-content {
-        
+
     }
     .produto-detalhe .product-details {
         flex-direction: column;
