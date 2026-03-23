@@ -5,7 +5,7 @@ from django.db.models import Q
 from clientes.models import Usuarios
 from .models import Produtos,Carrinho,ItemCarrinho,Pagamento,Verificacao,Subscricao
 from decimal import  Decimal
-from .supabase_helpers import upload_imagem
+from supabase_helpers import upload_imagem
 # Create your views here.
 def index(request):
     return render(request,'index.html')
