@@ -4215,12 +4215,12 @@ footer {
 .product-card:nth-child(6) { animation-delay: 0.5s; }
 @media (max-width: 600px) {
    p,h1,h2,h3,h4 {
-        max-width: 100%;
+        max-width: 80%;
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
     button {
-        width: 100%;
+        width: 60%;
     }
     .produto-detalhe .product-details {
         flex-direction: column;

@@ -13,13 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
-import cloudinary
 
-cloudinary.config(
-    cloud_name=os.environ.get('CLOUD_NAME'),
-    api_key=os.environ.get('API_KEY'),
-    api_secret=os.environ.get('API_SECRET')
-)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -140,9 +134,11 @@ STATIC_URL = '/static/'
 APPEND_SLASH = True
 AUTH_USER_MODEL="clientes.Usuarios"
 X_FRAME_OPTIONS='SAMEORIGIN'
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+
 MEDIA_URL="/media/"
 MEDIA_ROOT=BASE_DIR/ "media"
 STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+SUPABASE_URL=os.environ.get('SUPABASE_URL')
+SUPABASE_KEY=os.environ.get('SUPABASE_KEY')
+SUPABASE_BUCKET=os.environ.get('SUPABASE_BUCKET')

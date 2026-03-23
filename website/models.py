@@ -27,7 +27,7 @@ class Produtos(models.Model):
         ("servicos","Servicos"),
     ]
     user=models.ForeignKey(Usuarios,on_delete=models.CASCADE)
-    foto=models.ImageField(upload_to=caminho_produto)
+    foto=models.URLField(blank=True, null=True)
     nome=models.CharField( max_length=100)
     categoria=models.CharField(max_length=100,choices=CATEGORIAS)
     descricao=models.TextField()
@@ -71,7 +71,7 @@ class Pagamento(models.Model):
     user=models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     referencia=models.CharField(max_length=20)
     valor=models.DecimalField(max_digits=10,decimal_places=2)
-    foto=models.ImageField(upload_to=caminho_pagamento)
+    foto=models.URLField(blank=True, null=True)
     status=models.CharField(max_length=10,choices=STATUS, default="pendente")
     data=models.DateTimeField(auto_now_add=True)
 
@@ -82,9 +82,9 @@ class Verificacao(models.Model):
         ("recusado","Recusado"),
     ]
     user=models.ForeignKey(Usuarios, on_delete=models.CASCADE)
-    fotofrente=models.ImageField(upload_to=caminho_verificado)
-    fotoverso=models.ImageField(upload_to=caminho_verificado)
-    rosto=models.ImageField(upload_to=caminho_verificado)
+    fotofrente=models.URLField(blank=True, null=True)
+    fotoverso=models.URLField(blank=True, null=True)
+    rosto=models.URLField(blank=True, null=True)
     status=models.CharField(max_length=10,choices=STATUS, default="pendente")
     data=models.DateTimeField(auto_now_add=True)
 
@@ -96,5 +96,5 @@ class Subscricao(models.Model):
     ]
     user=models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     status=models.CharField(max_length=10,choices=STATUS, default="pendente")
-    foto=models.ImageField(upload_to=caminho_plano)
+    foto=models.URLField(blank=True, null=True)
     data=models.DateTimeField(auto_now_add=True)

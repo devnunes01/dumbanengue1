@@ -5,6 +5,7 @@ from django.db.models import Q
 from clientes.models import Usuarios
 from .models import Produtos,Carrinho,ItemCarrinho,Pagamento,Verificacao,Subscricao
 from decimal import  Decimal
+from .supabase_helpers import upload_imagem
 # Create your views here.
 def index(request):
     return render(request,'index.html')
@@ -103,11 +104,27 @@ def verificar(request):
             fotofrente=request.FILES.get("fotofrente")
             fotoverso=request.FILES.get("fotoverso")
             rosto=request.FILES.get("rosto")
+            def salvar_foto(arquivo,pasta):
+                if not arquivo:
+                    return None
+
+                caminho_local=f"media/{arquivo.name}"
+                with open(caminho_local, "wb+") as f:
+                    for chunk in arquivo.chunks():
+                        f.write(chunk)
+                url=upload_imagem(caminho_local, f"verificacoes/{pasta}_{arquivo.name}")
+                os.remove(caminho_local)
+                return url
+
+            url1=salvar_foto(fotofrente, "fotofrente")
+            url2=salvar_foto(fotoverso, "fotoverso")
+            url3=salvar_foto(rosto, "rosto")
+
             Verificacao.objects.create(
                 user=request.user,
-                fotofrente=fotofrente,
-                fotoverso=fotoverso,
-                rosto=rosto,
+                fotofrente=url1,
+                fotoverso=url2,
+                rosto=url3,
                 status="pendente"
         )
 
@@ -219,6 +236,19 @@ def publicar_produto(request):
             preco=request.POST.get("preco")
             prazo=request.POST.get("prazo")
             foto=request.FILES.get("foto")
+            def salvar_foto(arquivo,pasta):
+                if not arquivo:
+                    return None
+
+                caminho_local=f"media/{arquivo.name}"
+                with open(caminho_local, "wb+") as f:
+                    for chunk in arquivo.chunks():
+                        f.write(chunk)
+                url=upload_imagem(caminho_local, f"produtos/{pasta}_{arquivo.name}")
+                os.remove(caminho_local)
+                return url
+            url1=salvar_foto(foto, "user")
+
             Produtos.objects.create(
                 user=user,
                 nome=nome,
@@ -226,7 +256,7 @@ def publicar_produto(request):
                 descricao=descricao,
                 preco=preco,
                 prazo=prazo,
-                foto=foto
+                foto=url1
             )
             messages.success(request, 'Produto publicado com sucesso!')
             return redirect("/painel/")
@@ -273,11 +303,23 @@ def pagamento(request):
     referencia=carrinho.gerar_referencia()
     if request.method=="POST":
         foto=request.FILES.get("transacao")
+        def salvar_foto(arquivo,pasta):
+                if not arquivo:
+                    return None
+
+                caminho_local=f"media/{arquivo.name}"
+                with open(caminho_local, "wb+") as f:
+                    for chunk in arquivo.chunks():
+                        f.write(chunk)
+                url=upload_imagem(caminho_local, f"pagamentos/{pasta}_{arquivo.name}")
+                os.remove(caminho_local)
+                return url
+        url1=salvar_foto(foto,"user")
         Pagamento.objects.create(
             user=request.user,
             referencia=referencia,
             valor=total,
-            foto=foto,
+            foto=url1,
             status="pendente"
         )
         carrinho.referencia=referencia
