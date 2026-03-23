@@ -4211,7 +4211,7 @@ footer {
 
 .product-card:nth-child(5) { animation-delay: 0.4s; }
 .product-card:nth-child(6) { animation-delay: 0.5s; }
-@media (max-width: 768px) {
+@media (max-width: 400px) {
     .produto-detalhe .product-details {
         flex-direction: column;
     }
