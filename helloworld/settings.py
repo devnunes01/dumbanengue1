@@ -41,8 +41,7 @@ INSTALLED_APPS = [
     'helloworld',
     'website',
     'clientes',
-    'cloudinary',
-    'cloudinary_storage'
+    
 ]
 
 MIDDLEWARE = [
