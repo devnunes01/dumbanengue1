@@ -7,7 +7,7 @@ supabase=create_client(SUPABASE_URL,SUPABASE_KEY)
 def upload_imagem(arquivo, caminho_bucket):
     arquivo.file.seek(0)
     # arquivo já é o arquivo em memória vindo do request.FILES
-    supabase.storage.from_(SUPABASE_BUCKET).upload(caminho_bucket, arquivo.file, file_type=arquivo.content_type)
+    supabase.storage.from_(SUPABASE_BUCKET).upload(caminho_bucket, arquivo.file)
 
     url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(caminho_bucket)
     return url
