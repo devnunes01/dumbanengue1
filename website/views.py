@@ -251,19 +251,14 @@ def publicar_produto(request):
             preco=request.POST.get("preco")
             prazo=request.POST.get("prazo")
             foto=request.FILES.get("foto")
-            def salvar_foto(arquivo, tipo):
-                if not arquivo:
-                    return None
+            # def salvar_foto(arquivo, tipo):
+            #     if not arquivo:
+            #         return None
 
                 # 📁 estrutura: verific/user_id/tipo_nomearquivo
-                caminho = f"produtos/{request.user}/{tipo}_{arquivo.name}"
+            caminho = f"produtos/{request.user}/{foto.name}"
 
-                # 🚀 upload direto (sem salvar em media/)
-                url = upload_imagem(arquivo, caminho)
-
-                return url
-
-            url1=salvar_foto(foto,"produtos")
+            url1=upload_imagem(foto,caminho)
 
             Produtos.objects.create(
                 user=user,
