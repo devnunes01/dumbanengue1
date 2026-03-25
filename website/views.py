@@ -47,9 +47,22 @@ def produtos(request):
 def planos(request):
     if request.method == "POST":
         foto=request.FILES.get("transacao")
+        def salvar_foto(arquivo, tipo):
+            if not arquivo:
+                return None
+
+            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
+            caminho = f"verificacoes/{request.user}/{tipo}_{arquivo.name}"
+
+            # 🚀 upload direto (sem salvar em media/)
+            url = upload_imagem(arquivo, caminho)
+
+            return url
+
+        url1=salvar_foto(foto, "comprovante")
         Subscricao.objects.create(
             user=request.user,
-            foto=foto
+            foto=url1
         )
         messages.success(request, 'Comprovante enviado com sucesso')
         return redirect('/lista-produtos/')
@@ -96,42 +109,44 @@ def verificado(request):
 
 
 def verificar(request):
-    user=request.user
+    user = request.user
+
     if user.verificado:
         return redirect('/verificado/')
-    else:
-        if request.method=="POST":
-            fotofrente=request.FILES.get("fotofrente")
-            fotoverso=request.FILES.get("fotoverso")
-            rosto=request.FILES.get("rosto")
-            def salvar_foto(arquivo,pasta):
-                if not arquivo:
-                    return None
+    
+    if request.method == "POST":
+        fotofrente = request.FILES.get("fotofrente")
+        fotoverso = request.FILES.get("fotoverso")
+        rosto = request.FILES.get("rosto")
 
-                caminho_local=f"media/{arquivo.name}"
-                with open(caminho_local, "wb+") as f:
-                    for chunk in arquivo.chunks():
-                        f.write(chunk)
-                url=upload_imagem(caminho_local, f"verificacoes/{pasta}_{arquivo.name}")
-                os.remove(caminho_local)
-                return url
+        def salvar_foto(arquivo, tipo):
+            if not arquivo:
+                return None
 
-            url1=salvar_foto(fotofrente, "fotofrente")
-            url2=salvar_foto(fotoverso, "fotoverso")
-            url3=salvar_foto(rosto, "rosto")
+            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
+            caminho = f"verificacoes/{request.user}/{tipo}_{arquivo.name}"
 
-            Verificacao.objects.create(
-                user=request.user,
-                fotofrente=url1,
-                fotoverso=url2,
-                rosto=url3,
-                status="pendente"
+            # 🚀 upload direto (sem salvar em media/)
+            url = upload_imagem(arquivo, caminho)
+
+            return url
+
+        url1 = salvar_foto(fotofrente, "fotofrente")
+        url2 = salvar_foto(fotoverso, "fotoverso")
+        url3 = salvar_foto(rosto, "rosto")
+
+        Verificacao.objects.create(
+            user=user,
+            fotofrente=url1,
+            fotoverso=url2,
+            rosto=url3,
+            status="pendente"
         )
 
-            messages.success(request, 'Fotos enviadas, aguarde a revisao!')
-            return redirect('/lista-produtos/')
+        messages.success(request, 'Fotos enviadas, aguarde a revisao!')
+        return redirect('/lista-produtos/')
 
-    return render (request, 'verificar.html')
+    return render(request, 'verificar.html')
     
 
 def sobre(request):
@@ -236,18 +251,19 @@ def publicar_produto(request):
             preco=request.POST.get("preco")
             prazo=request.POST.get("prazo")
             foto=request.FILES.get("foto")
-            def salvar_foto(arquivo,pasta):
+            def salvar_foto(arquivo, tipo):
                 if not arquivo:
                     return None
 
-                caminho_local=f"media/{arquivo.name}"
-                with open(caminho_local, "wb+") as f:
-                    for chunk in arquivo.chunks():
-                        f.write(chunk)
-                url=upload_imagem(caminho_local, f"produtos/{pasta}_{arquivo.name}")
-                os.remove(caminho_local)
+                # 📁 estrutura: verific/user_id/tipo_nomearquivo
+                caminho = f"produtos/{request.user}/{tipo}_{arquivo.name}"
+
+                # 🚀 upload direto (sem salvar em media/)
+                url = upload_imagem(arquivo, caminho)
+
                 return url
-            url1=salvar_foto(foto, "user")
+
+            url1=salvar_foto(foto,"produtos")
 
             Produtos.objects.create(
                 user=user,
@@ -303,18 +319,18 @@ def pagamento(request):
     referencia=carrinho.gerar_referencia()
     if request.method=="POST":
         foto=request.FILES.get("transacao")
-        def salvar_foto(arquivo,pasta):
-                if not arquivo:
-                    return None
+        def salvar_foto(arquivo, tipo):
+            if not arquivo:
+                return None
 
-                caminho_local=f"media/{arquivo.name}"
-                with open(caminho_local, "wb+") as f:
-                    for chunk in arquivo.chunks():
-                        f.write(chunk)
-                url=upload_imagem(caminho_local, f"pagamentos/{pasta}_{arquivo.name}")
-                os.remove(caminho_local)
-                return url
-        url1=salvar_foto(foto,"user")
+            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
+            caminho = f"pagamentos/{request.user}/{tipo}_{arquivo.name}"
+
+            # 🚀 upload direto (sem salvar em media/)
+            url = upload_imagem(arquivo, caminho)
+
+            return url
+        url1=salvar_foto(foto,"pagamentos")
         Pagamento.objects.create(
             user=request.user,
             referencia=referencia,
