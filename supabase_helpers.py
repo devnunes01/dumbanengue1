@@ -4,8 +4,9 @@ SUPABASE_URL=os.environ.get('SUPABASE_URL')
 SUPABASE_KEY=os.environ.get('SUPABASE_KEY')
 SUPABASE_BUCKET=os.environ.get('SUPABASE_BUCKET')
 supabase=create_client(SUPABASE_URL,SUPABASE_KEY)
-def upload_imagem(caminho_local, caminho_bucket):
-    with open(caminho_local, "rb") as f:
-        supabase.storage.from_(SUPABASE_BUCKET).upload(caminho_bucket, f)
-    url=supabase.storage.from_(SUPABASE_BUCKET).get_public_url(caminho_bucket)
+def upload_imagem(arquivo, caminho_bucket):
+    # arquivo já é o arquivo em memória vindo do request.FILES
+    supabase.storage.from_(SUPABASE_BUCKET).upload(caminho_bucket, arquivo)
+
+    url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(caminho_bucket)
     return url
