@@ -2321,6 +2321,7 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
     .product-card {
+        width: 100;
         animation: fadeIn 0.3s ease-out;
     }
     product-card:hover {
