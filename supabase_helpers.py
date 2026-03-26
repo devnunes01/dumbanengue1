@@ -13,4 +13,4 @@ def upload_imagem(arquivo, caminho_bucket):
     supabase.storage.from_(SUPABASE_BUCKET).upload(caminho_bucket, file_data)
 
     url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(caminho_bucket)
-    return url['publicURL']
+    return url
