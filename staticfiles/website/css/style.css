@@ -2269,7 +2269,7 @@ footer {
     
     body {
         font-size: 14px;
-        overflow-x: hidden;
+        
     }
     .container {
         flex-direction: column;
