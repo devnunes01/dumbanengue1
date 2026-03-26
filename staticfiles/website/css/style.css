@@ -2264,9 +2264,17 @@ footer {
         opacity: 1;
     }
 }
-
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    .container {
+        flex-direction: column;
+    }
+    .box {
+        width: 100%;
+    }
     .hero {
         grid-template-columns: 1fr;
         text-align: center;
@@ -2297,6 +2305,40 @@ footer {
     
     .cta h2 {
         font-size: 2rem;
+    }
+    .produto-detalhe .product-details {
+        flex-direction: column;
+    }
+    
+    .produto-detalhe .product-info h2 {
+        font-size: 1.8rem;
+    }
+    
+    .produto-detalhe .product-price {
+        font-size: 1.8rem;
+    }
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .product-card {
+        animation: fadeIn 0.3s ease-out;
+    }
+    product-card:hover {
+    transform: translateY(-5px);
+    }
+    img {
+        width: 100%;
+        height: auto;
+    }
+    .product-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    }
+
+    .product-card h3 {
+        padding: 1rem 1rem 0.5rem;
+        color: #2c3e50;
     }
 }
 
@@ -4213,44 +4255,3 @@ footer {
 
 .product-card:nth-child(5) { animation-delay: 0.4s; }
 .product-card:nth-child(6) { animation-delay: 0.5s; }
-@media (max-width: 600px) {
-   p,h1,h2,h3,h4 {
-        max-width: 100%;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-    button {
-        width: 100%;
-    }
-    .produto-detalhe .product-details {
-        flex-direction: column;
-    }
-    
-    .produto-detalhe .product-info h2 {
-        font-size: 1.8rem;
-    }
-    
-    .produto-detalhe .product-price {
-        font-size: 1.8rem;
-    }
-    .products-grid {
-        grid-template-columns: 1fr;
-    }
-    .product-card {
-        animation: fadeIn 0.3s ease-out;
-    }
-    product-card:hover {
-    transform: translateY(-5px);
-    }
-    .product-card img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    }
-
-    .product-card h3 {
-        padding: 1rem 1rem 0.5rem;
-        color: #2c3e50;
-    }
-
-}
