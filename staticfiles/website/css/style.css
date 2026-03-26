@@ -2314,11 +2314,12 @@ footer {
         font-size: 1.8rem;
     }
     
+    
     .produto-detalhe .product-price {
         font-size: 1.8rem;
     }
     .products-grid {
-        width: 200px;
+        width: 150px;
         grid-template-columns: repeat(2, 1fr);
     }
     .product-card {
