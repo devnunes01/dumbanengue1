@@ -14,7 +14,7 @@
 
     {% for item in itens %}
       <div class="product-card">
-        <img  src="{{ item.produto.foto.url }}" alt="{{ item.produto.nome }}">
+        <img  src="{{ item.produto.foto }}" alt="{{ item.produto.nome }}">
         <div wid class="product-card-body">
           <h3>{{ item.produto.nome }}</h3>
           <p>Preço: {{ item.produto.preco }} MZN</p>

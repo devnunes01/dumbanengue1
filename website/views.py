@@ -41,25 +41,14 @@ def cadastro(request):
     return render(request,'cadastro.html')
 
 def produtos(request):
-    produtos=Produtos.objects.all().order_by('-id')
+    produtos=Produtos.objects.all().order_by('-data','-id')
     return render(request,'produtos.html', {"produtos",produtos})
 
 def planos(request):
     if request.method == "POST":
         foto=request.FILES.get("transacao")
-        def salvar_foto(arquivo, tipo):
-            if not arquivo:
-                return None
-
-            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
-            caminho = f"verificacoes/{request.user}/{tipo}_{arquivo.name}"
-
-            # 🚀 upload direto (sem salvar em media/)
-            url = upload_imagem(arquivo, caminho)
-
-            return url
-
-        url1=salvar_foto(foto, "comprovante")
+        caminho = f"subscricao/{request.user}/{foto.name}"
+        url1 = upload_imagem(foto, caminho)
         Subscricao.objects.create(
             user=request.user,
             foto=url1
@@ -118,22 +107,12 @@ def verificar(request):
         fotofrente = request.FILES.get("fotofrente")
         fotoverso = request.FILES.get("fotoverso")
         rosto = request.FILES.get("rosto")
-
-        def salvar_foto(arquivo, tipo):
-            if not arquivo:
-                return None
-
-            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
-            caminho = f"verificacoes/{request.user}/{tipo}_{arquivo.name}"
-
-            # 🚀 upload direto (sem salvar em media/)
-            url = upload_imagem(arquivo, caminho)
-
-            return url
-
-        url1 = salvar_foto(fotofrente, "fotofrente")
-        url2 = salvar_foto(fotoverso, "fotoverso")
-        url3 = salvar_foto(rosto, "rosto")
+        caminho = f"verificacoes/{request.user}/{fotofrente.name}"
+        caminho1 = f"verificacoes/{request.user}/{fotoverso.name}"
+        caminho2 = f"verificacoes/{request.user}/{rosto.name}"
+        url1= upload_imagem(fotofrente, caminho)
+        url2= upload_imagem(fotoverso, caminho1)
+        url3= upload_imagem(rosto, caminho2)
 
         Verificacao.objects.create(
             user=user,
@@ -251,11 +230,6 @@ def publicar_produto(request):
             preco=request.POST.get("preco")
             prazo=request.POST.get("prazo")
             foto=request.FILES.get("foto")
-            # def salvar_foto(arquivo, tipo):
-            #     if not arquivo:
-            #         return None
-
-                # 📁 estrutura: verific/user_id/tipo_nomearquivo
             caminho = f"produtos/{request.user}/{foto.name}"
 
             url1=upload_imagem(foto,caminho)
@@ -314,18 +288,8 @@ def pagamento(request):
     referencia=carrinho.gerar_referencia()
     if request.method=="POST":
         foto=request.FILES.get("transacao")
-        def salvar_foto(arquivo, tipo):
-            if not arquivo:
-                return None
-
-            # 📁 estrutura: verificacoes/user_id/tipo_nomearquivo
-            caminho = f"pagamentos/{request.user}/{tipo}_{arquivo.name}"
-
-            # 🚀 upload direto (sem salvar em media/)
-            url = upload_imagem(arquivo, caminho)
-
-            return url
-        url1=salvar_foto(foto,"pagamentos")
+        caminho = f"pagamentos/{request.user}/{foto.name}"
+        url1=upload_imagem(foto,caminho)
         Pagamento.objects.create(
             user=request.user,
             referencia=referencia,
