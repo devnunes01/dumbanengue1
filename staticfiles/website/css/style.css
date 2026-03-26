@@ -2319,7 +2319,7 @@ footer {
         font-size: 1.8rem;
     }
     .products-grid {
-        width: 150px;
+        width: 50%;
         grid-template-columns: repeat(2, 1fr);
     }
     .product-card {
